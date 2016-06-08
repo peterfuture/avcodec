@@ -1,12 +1,16 @@
-# android_omx
+# dtcodec
 
-video hardware decoder & encoder with omx API on Android.
+video decoder & encoder both for Linux & Android
 
 ## Installation
 
+### Linux
+
+* ToDo 
+
+### Android
 * copy code under aosp/external
 * mm
-
 
 ## Author
 
