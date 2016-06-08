@@ -1,0 +1,30 @@
+# CMake version
+cmake_minimum_required (VERSION 2.8)
+
+# project
+project (dtcodec)
+
+LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
+
+# DEFS
+ADD_DEFINITIONS(-DENABLE_LINUX)
+
+# Target
+INCLUDE_DIRECTORIES(include)
+AUX_SOURCE_DIRECTORY(src SRC_CODEC)
+AUX_SOURCE_DIRECTORY(src/plugin SRC_CODEC)
+ADD_LIBRARY(dtcodec STATIC ${SRC_CODEC})
+
+#TARGET_LINK_LIBRARIES(dtcodec pthread)
+
+# target - test
+ADD_EXECUTABLE(codec_test test/codec_test.cpp)
+TARGET_LINK_LIBRARIES(codec_test dtcodec)
+
+INSTALL(TARGETS dtcodec
+#RUNTIME DESTINATION bin
+LIBRARY DESTINATION lib
+ARCHIVE DESTINATION lib
+)
+INSTALL(DIRECTORY include/ DESTINATION /usr/local/include/${PROJECT_NAME})
+

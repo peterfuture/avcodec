@@ -1,3 +1,5 @@
+#ifdef ENABLE_ANDROID
+
 #include <utils/Log.h>
 
 #include <binder/ProcessState.h>
@@ -81,3 +83,5 @@ fail:
     delete codec->mOMXClient;
     return ret;
 }
+
+#endif

@@ -1,12 +1,13 @@
 # dtcodec
 
-video decoder & encoder both for Linux & Android
+av decoder & encoder both for Linux & Android
 
 ## Installation
 
 ### Linux
-
-* ToDo 
+* mkdir build & cd build
+* cmake..
+* make
 
 ### Android
 * copy code under aosp/external

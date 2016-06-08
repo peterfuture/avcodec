@@ -1,15 +1,13 @@
 #ifndef CODEC_AV_H
 #define CODEC_AV_H
 
-enum AV_TYPE{
-    CODEC_AV_TYPE_UNKOWN = -1,
-    CODEC_AV_TYPE_AUDIO = 0,
-    CODEC_AV_TYPE_VIDEO = 1
-};
+#include <stdint.h>
+
+#include "codec_api.h"
 
 struct codec_packet
 {
-    int type;
+    int format;
     size_t size;
     int64_t pts;
     int key;
@@ -18,7 +16,7 @@ struct codec_packet
 
 struct codec_frame
 {
-    int type;
+    int format;
     size_t size;
     int64_t pts;
     int key;
