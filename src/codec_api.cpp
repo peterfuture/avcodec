@@ -22,9 +22,13 @@ struct codec_context *codec_create_codec(struct codec_para *para)
         return NULL;
     memset(handle, 0, sizeof(struct codec_context));
     memcpy(&handle->para, para, sizeof(struct codec_para));
+    if(para->is_encoder == 0) {
+        struct decoder_context *decoder = decoder_create(para);
+        if(!decoder)
+            return NULL;
+        handle->codec = (void *)decoder;
+    }
     
-
-    struct decoder_context *decoder = decoder_create(para);
     log_print(TAG, "Codec create ok\n");
     return handle;
 }

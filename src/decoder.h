@@ -3,15 +3,10 @@
 
 #include "codec_av.h"
 
-struct decoder_context 
-{
-    struct codec_para para;
-};
-
 struct video_decoder {
     
     const char *name;
-    struct codec_para para;
+    int media_format;
 
     int (*open)(struct video_decoder *decoder);
     int (*decode)(struct video_decoder *decoder, struct codec_packet * pkt, struct codec_frame *frame);
@@ -20,7 +15,13 @@ struct video_decoder {
     int (*close)(struct video_decoder *decoder);
 
     void *priv;
-    struct vd_wrapper *next;
+    struct video_decoder *next;
+};
+
+struct decoder_context 
+{
+    struct codec_para para;
+    void *decoder;
 };
 
 void decoder_register_all();

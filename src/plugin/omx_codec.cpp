@@ -1,7 +1,5 @@
 #ifdef ENABLE_ANDROID
 
-#include <utils/Log.h>
-
 #include <binder/ProcessState.h>
 #include <media/stagefright/MetaData.h>
 #include <media/stagefright/MediaBufferGroup.h>
@@ -45,7 +43,7 @@ struct omx_codec_context {
 
 int omx_decoder_init()
 {
-    ALOGE("Enter omxdecoder init\n");
+    log_print(TAG, "Enter omxdecoder init\n");
     int ret = 0;
     struct omx_codec_context *codec = new omx_codec_context;
     sp<MetaData> meta, outFormat;
@@ -69,7 +67,7 @@ int omx_decoder_init()
         goto fail;
     }
 
-    ALOGE("Exit omxdecoder init\n");
+    log_print(TAG, "Exit omxdecoder init\n");
     goto fail;
     return ret;
 

@@ -2,7 +2,6 @@
 #define CODEC_AV_H
 
 #include <stdint.h>
-
 #include "codec_api.h"
 
 struct codec_packet
