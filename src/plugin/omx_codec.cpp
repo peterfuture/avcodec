@@ -1,85 +1,93 @@
-#ifdef ENABLE_ANDROID
+#if ANDROID
 
-#include <binder/ProcessState.h>
-#include <media/stagefright/MetaData.h>
-#include <media/stagefright/MediaBufferGroup.h>
-#include <media/stagefright/MediaDefs.h>
-#include <media/stagefright/OMXClient.h>
-#include <media/stagefright/OMXCodec.h>
-#include <utils/List.h>
-#include <new>
-#include <map>
+#include <assert.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <string.h>
 
-#include "codec_av.h"
+// for native media
+#include <OMXAL/OpenMAXAL.h>
+#include <OMXAL/OpenMAXAL_Android.h>
 
-#define OMX_QCOM_COLOR_FormatYVU420SemiPlanar 0x7FA30C00
-#define FF_INPUT_BUFFER_PADDING_SIZE 32
-#define TAG "OMX_DECODER"
-
-using namespace android;
-
-struct TimeStamp {
-    int64_t pts;
-    int64_t reordered_opaque;
-};
-
-struct omx_codec_context {
-    uint8_t *mExtradata;
-    int mExtraDataSize;
-
-    sp<MediaSource> *mMediaSource;
-    List<struct codec_frame *> *mQueueIn, *mQueueOut;
-
-    struct codec_frame *mLastFrame;
-    bool mMediaSourceDone;
+#include "log_print.h"
+#define TAG "ANDROID_OMX"
 
 
-    OMXClient *mOMXClient;
-    sp<MediaSource> *mDecoder;
-    const char *mDecoderComponent;
+// engine interfaces
+static XAObjectItf engineObject = NULL;
+static XAEngineItf engineEngine = NULL;
 
-    std::map<int64_t, TimeStamp> *mTsTimeStampMap;
-};
+// output mix interfaces
+static XAObjectItf outputMixObject = NULL;
 
-int omx_decoder_init()
+// output mix interfaces
+static XAObjectItf outputMixObject = NULL;
+
+// streaming media player interfaces
+static XAObjectItf             playerObj = NULL;
+static XAPlayItf               playerPlayItf = NULL;
+static XAAndroidBufferQueueItf playerBQItf = NULL;
+static XAStreamInformationItf  playerStreamInfoItf = NULL;
+static XAVolumeItf             playerVolItf = NULL;
+
+// number of required interfaces for the MediaPlayer creation
+#define NB_MAXAL_INTERFACES 3 // XAAndroidBufferQueueItf, XAStreamInformationItf and XAPlayItf
+
+// number of buffers in our buffer queue, an arbitrary number
+#define NB_BUFFERS 8
+
+// we're streaming MPEG-2 transport stream data, operate on transport stream block size
+#define MPEG2_TS_PACKET_SIZE 188
+
+// number of MPEG-2 transport stream blocks per buffer, an arbitrary number
+#define PACKETS_PER_BUFFER 10
+
+// determines how much memory we're dedicating to memory caching
+#define BUFFER_SIZE (PACKETS_PER_BUFFER*MPEG2_TS_PACKET_SIZE)
+
+// where we cache in memory the data to play
+// note this memory is re-used by the buffer queue callback
+static char dataCache[BUFFER_SIZE * NB_BUFFERS];
+
+// constant to identify a buffer context which is the end of the stream to decode
+static const int kEosBufferCntxt = 1980; // a magic value we can compare against
+
+// For mutual exclusion between callback thread and application thread(s).
+// The mutex protects reachedEof, discontinuity,
+// The condition is signalled when a discontinuity is acknowledged.
+
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+
+// whether a discontinuity is in progress
+static bool discontinuity = false;
+
+
+// create the engine and output mix objects
+void createEngine()
 {
-    log_print(TAG, "Enter omxdecoder init\n");
-    int ret = 0;
-    struct omx_codec_context *codec = new omx_codec_context;
-    sp<MetaData> meta, outFormat;
-    meta = new MetaData;
-    meta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_VIDEO_AVC);
-    meta->setInt32(kKeyWidth, 1024);
-    meta->setInt32(kKeyHeight, 768);
+    XAresult res;
 
-    android::ProcessState::self()->startThreadPool();
-    codec->mMediaSource = new sp<MediaSource>();
-        
-    //*codec->source   = new CustomSource(decoder, meta);
-    codec->mQueueIn  = new List<struct codec_frame *>;
-    codec->mQueueOut = new List<struct codec_frame *>;
-    codec->mTsTimeStampMap = new std::map<int64_t, TimeStamp>;
-    codec->mOMXClient  = new OMXClient;
-    codec->mLastFrame = (struct codec_frame *)malloc(sizeof(struct codec_frame));
+    // create engine
+    res = xaCreateEngine(&engineObject, 0, NULL, 0, NULL, NULL);
+    assert(XA_RESULT_SUCCESS == res);
 
-    if (codec->mOMXClient->connect() !=  OK) {
-        ret = -1;
-        goto fail;
-    }
+    // realize the engine
+    res = (*engineObject)->Realize(engineObject, XA_BOOLEAN_FALSE);
+    assert(XA_RESULT_SUCCESS == res);
 
-    log_print(TAG, "Exit omxdecoder init\n");
-    goto fail;
-    return ret;
+    // get the engine interface, which is needed in order to create other objects
+    res = (*engineObject)->GetInterface(engineObject, XA_IID_ENGINE, &engineEngine);
+    assert(XA_RESULT_SUCCESS == res);
 
-fail:
-    if(codec->mExtraDataSize > 0)
-        free(codec->mExtradata);
-    free(codec->mLastFrame);
-    delete codec->mQueueIn;
-    delete codec->mQueueOut;
-    delete codec->mTsTimeStampMap;
-    delete codec->mOMXClient;
-    return ret;
+    // create output mix
+    res = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 0, NULL, NULL);
+    assert(XA_RESULT_SUCCESS == res);
+
+    // realize the output mix
+    res = (*outputMixObject)->Realize(outputMixObject, XA_BOOLEAN_FALSE);
+    assert(XA_RESULT_SUCCESS == res);
+
 }
 
 #endif

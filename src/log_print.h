@@ -21,7 +21,7 @@ inline void log_print(const void *tag, const char *fmt, ...)
 #endif
 
 #ifdef ENABLE_ANDROID
-#include <utils/Log.h>
+#include <android/log.h>
 #define log_print(p1,...)    __android_log_print(ANDROID_LOG_INFO,p1,__VA_ARGS__)
 #endif
 
