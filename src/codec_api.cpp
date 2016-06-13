@@ -63,6 +63,10 @@ int codec_destroy_codec(struct codec_context *handle)
 {
     if(!handle)
         return 0;
+    if(handle->para.is_encoder)
+        encoder_destroy((struct encoder_context *)handle->codec);
+    else
+        decoder_destroy((struct decoder_context *)handle->codec);
     free(handle);
     return 0;
 }

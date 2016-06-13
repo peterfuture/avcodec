@@ -55,7 +55,7 @@ struct decoder_context *decoder_create(struct codec_para *para)
 	return handle;
 }
 
-void decoder_destroy()
+void decoder_destroy(struct decoder_context * handle)
 {
 	return;
 }

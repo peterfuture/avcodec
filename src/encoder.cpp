@@ -85,7 +85,10 @@ int encoder_encode(struct encoder_context *handle, struct codec_packet *pkt, str
     return encoder->encode(encoder, pkt, frame);
 }
 
-void encoder_destroy()
+void encoder_destroy(struct encoder_context *handle)
 {
+	struct video_encoder *encoder = handle->encoder;
+	encoder->close(encoder);
+	free(handle);
 	return;
 }
