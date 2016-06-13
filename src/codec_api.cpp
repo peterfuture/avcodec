@@ -12,7 +12,7 @@
 void codec_register_all()
 {
     decoder_register_all();
-    //encoder_register_all();
+    encoder_register_all();
 }
 
 struct codec_context *codec_create_codec(struct codec_para *para)
@@ -23,10 +23,15 @@ struct codec_context *codec_create_codec(struct codec_para *para)
     memset(handle, 0, sizeof(struct codec_context));
     memcpy(&handle->para, para, sizeof(struct codec_para));
     if(para->is_encoder == 0) {
-        struct decoder_context *decoder = decoder_create(para);
-        if(!decoder)
+        struct decoder_context *codec = decoder_create(para);
+        if(!codec)
             return NULL;
-        handle->codec = (void *)decoder;
+        handle->codec = (void *)codec;
+    } else if(para->is_encoder == 1) {        
+        struct encoder_context *codec = encoder_create(para);
+        if(!codec)
+            return NULL;
+        handle->codec = (void *)codec;
     }
     
     log_print(TAG, "Codec create ok\n");
@@ -38,9 +43,10 @@ int codec_decode_frame()
     return 0;
 }
 
-int codec_encode_frame()
+int codec_encode_frame(struct codec_context *handle, struct codec_packet *pkt, struct codec_frame *frame)
 {
-    return 0;
+    struct encoder_context *codec = (struct encoder_context *)handle->codec;
+    return encoder_encode(codec, pkt, frame);
 }
 
 int codec_get_parameter()
