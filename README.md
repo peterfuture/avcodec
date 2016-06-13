@@ -2,6 +2,11 @@
 
 av decoder & encoder both for Linux & Android
 
+## Feature
+
+Video Encoder
+* H264 - X264 √
+
 ## Installation
 
 ### Linux
