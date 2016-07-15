@@ -144,14 +144,29 @@ struct encoder_context *encoder_create(struct codec_para *para)
 
 int encoder_encode(struct encoder_context *handle, struct codec_packet *pkt, struct codec_frame *frame)
 {
-    struct video_encoder *encoder = (struct video_encoder *)handle->encoder;
-    return encoder->encode(encoder, pkt, frame);
+    if(handle->para.media_type == CODEC_MEDIA_TYPE_VIDEO) {
+        struct video_encoder *encoder = (struct video_encoder *)handle->encoder;
+        return encoder->encode(encoder, pkt, frame);
+    }
+    if(handle->para.media_type == CODEC_MEDIA_TYPE_AUDIO) {
+        struct audio_encoder *encoder = (struct audio_encoder *)handle->encoder;
+        return encoder->encode(encoder, pkt, frame);
+    }
+
+    return -1;
 }
 
 void encoder_destroy(struct encoder_context *handle)
 {
-    struct video_encoder *encoder = (struct video_encoder *)handle->encoder;
-    encoder->close(encoder);
+    if(handle->para.media_type == CODEC_MEDIA_TYPE_VIDEO) {
+        struct video_encoder *encoder = (struct video_encoder *)handle->encoder;
+        encoder->close(encoder);
+    }
+    if(handle->para.media_type == CODEC_MEDIA_TYPE_AUDIO) {
+        struct audio_encoder *encoder = (struct audio_encoder *)handle->encoder;
+        encoder->close(encoder);
+    
+    }
     free(handle);
     return;
 }

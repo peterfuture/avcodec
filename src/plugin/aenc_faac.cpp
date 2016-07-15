@@ -24,9 +24,26 @@ extern "C" {
 #include "log_print.h"
 #define TAG "FAAC Encoder"
 
+struct faac_context {
+    faacEncHandle handle;
+    unsigned long inputSamples;
+    unsigned long maxOutputBytes;
+};
+
 static int faac_audio_encoder_open(struct audio_encoder *encoder)
 {
-    log_print(TAG, "FAAC Encoder Open\n");
+    struct faac_context *contex = (struct faac_context *)malloc(sizeof(struct faac_context));
+    if(!contex)
+        return -1;
+    memset(contex, 0, sizeof(struct faac_context));
+    struct codec_para *para = &encoder->para;
+    contex->handle = faacEncOpen(para->samplerate, para->channels, &contex->inputSamples, &contex->maxOutputBytes);
+    if(!contex->handle) {
+        free(contex);
+        return -1;
+    }
+
+    log_print(TAG, "FAAC Encoder Open. InputSamples:%u MaxOutputBytes:%u\n", contex->inputSamples, contex->maxOutputBytes);
     return 0;
 }
 
