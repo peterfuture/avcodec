@@ -18,10 +18,26 @@ struct video_encoder {
     struct video_encoder *next;
 };
 
-struct encoder_context 
-{
+struct audio_encoder {
+    const char *name;
+    int media_format;
     struct codec_para para;
-    struct video_encoder *encoder;
+
+    int (*open)(struct audio_encoder *encoder);
+    int (*encode)(struct audio_encoder *encoder, struct codec_packet * pkt, struct codec_frame *frame);
+    int (*get_info)(struct audio_encoder *encoder);
+    int (*set_info)(struct audio_encoder *encoder);
+    int (*close)(struct audio_encoder *encoder);
+
+    void *priv;
+    struct audio_encoder *next;
+};
+
+
+struct encoder_context {
+    struct codec_para para;
+    //struct video_encoder *encoder;
+    void *encoder;
 };
 
 void encoder_register_all();

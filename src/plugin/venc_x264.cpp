@@ -2,7 +2,7 @@
 #include "encoder.h"
 
 extern "C" {
-    #include <x264.h>
+#include <x264.h>
 }
 
 #include "log_print.h"
@@ -57,8 +57,8 @@ static int x264_video_encoder_encode(struct video_encoder *encoder, struct codec
     x264_param_t *x264_para = &x264->para;
     int width = x264_para->i_width;
     int height = x264_para->i_height;
-    memcpy(x264->in.img.plane[0], frame->data, width*height);
-    memcpy(x264->in.img.plane[1], frame->data + width*height - 1, width*height/2);
+    memcpy(x264->in.img.plane[0], frame->data, width * height);
+    memcpy(x264->in.img.plane[1], frame->data + width * height - 1, width * height / 2);
 
     if (frame->key == 1) {
         x264->in.i_type = X264_TYPE_IDR;
@@ -69,26 +69,26 @@ static int x264_video_encoder_encode(struct video_encoder *encoder, struct codec
     int nals;
     x264_nal_t *nal_pointer;
     int ret = x264_encoder_encode(x264->handle, &nal_pointer, &nals, &x264->in, &x264->out);
-    if ( ret <= 0) {
+    if (ret <= 0) {
         return ret;
     }
 
     int outLength = 0;
-    for ( int i = 0; i < nals; i++) {
-        if( nal_pointer[i].i_type != 6) {
+    for (int i = 0; i < nals; i++) {
+        if (nal_pointer[i].i_type != 6) {
             x264_nal_t* nal = &nal_pointer[i];
             memcpy(&pkt->data[outLength], nal->p_payload, nal->i_payload);
             outLength += nal->i_payload;
         }
-   }
+    }
 
-   // setup pkt
-   pkt->size = outLength;
-   pkt->format = CODEC_MEDIA_FORMAT_H264;
-   pkt->pts = -1;
-   pkt->key = frame->key;
+    // setup pkt
+    pkt->size = outLength;
+    pkt->format = CODEC_MEDIA_FORMAT_H264;
+    pkt->pts = -1;
+    pkt->key = frame->key;
 
-   return outLength;
+    return outLength;
 }
 
 static int x264_video_encoder_get_info(struct video_encoder *encoder)

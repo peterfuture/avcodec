@@ -4,7 +4,7 @@
 #include "codec_av.h"
 
 struct video_decoder {
-    
+
     const char *name;
     int media_format;
 
@@ -18,8 +18,7 @@ struct video_decoder {
     struct video_decoder *next;
 };
 
-struct decoder_context 
-{
+struct decoder_context {
     struct codec_para para;
     void *decoder;
 };
