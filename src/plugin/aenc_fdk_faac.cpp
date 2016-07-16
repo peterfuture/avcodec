@@ -18,14 +18,13 @@
 #include "encoder.h"
 
 extern "C" {
-#include <faac.h>
+#include <fdk-aac/aacenc_lib.h>
 }
 
 #include "log_print.h"
-#define TAG "FAAC Encoder"
+#define TAG "FDK AAC Encoder"
 
 struct faac_context {
-    faacEncHandle handle;
     unsigned long inputSamples;
     unsigned long maxOutputBytes;
 };
@@ -37,11 +36,7 @@ static int faac_audio_encoder_open(struct audio_encoder *encoder)
         return -1;
     memset(contex, 0, sizeof(struct faac_context));
     struct codec_para *para = &encoder->para;
-    contex->handle = faacEncOpen(para->samplerate, para->channels, &contex->inputSamples, &contex->maxOutputBytes);
-    if(!contex->handle) {
-        free(contex);
-        return -1;
-    }
+    
 
     log_print(TAG, "FAAC Encoder Open. InputSamples:%u MaxOutputBytes:%u\n", contex->inputSamples, contex->maxOutputBytes);
     return 0;
@@ -72,7 +67,7 @@ static int faac_audio_encoder_close(struct audio_encoder *encoder)
 struct audio_encoder ae_faac_ops = {};
 void ae_faac_ops_setup()
 {
-    ae_faac_ops.name = "FAAC Encoder";
+    ae_faac_ops.name = "FDK AAC Encoder";
     ae_faac_ops.media_format = CODEC_MEDIA_FORMAT_AAC;
     ae_faac_ops.open = faac_audio_encoder_open;
     ae_faac_ops.encode = faac_audio_encoder_encode;
