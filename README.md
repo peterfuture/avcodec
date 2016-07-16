@@ -6,6 +6,7 @@ av decoder & encoder both for Linux & Android
 
 Video Encoder
 * H264 - X264 √
+* AAC  - fdk-aac √
 
 ## Build
 
