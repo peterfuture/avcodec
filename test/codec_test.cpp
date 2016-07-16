@@ -28,6 +28,7 @@ int main(int argc, char **argv)
     pkt.data = (uint8_t *)malloc(1280 * 720 * 4);
     frame.key = 1;
     frame.data = (uint8_t *)malloc(1280 * 720 * 4);
+    memset(frame.data, 256, 1000);
     codec_encode_frame(codec, &pkt, &frame);
     codec_destroy_codec(codec);
     free(pkt.data);
@@ -42,8 +43,11 @@ int main(int argc, char **argv)
     para.channels = 2;
     codec = codec_create_codec(&para);
     pkt.data = (uint8_t *)malloc(1280 * 720 * 4);
+    pkt.size = 1280 * 720 * 4;
     frame.key = 1;
     frame.data = (uint8_t *)malloc(1280 * 720 * 4);
+    frame.size = 44100*2;
+    frame.nb_samples = 44100;
     codec_encode_frame(codec, &pkt, &frame);
     codec_destroy_codec(codec);
     free(pkt.data);

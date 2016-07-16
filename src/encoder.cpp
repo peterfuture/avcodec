@@ -96,7 +96,7 @@ void encoder_register_all()
     REGISTER_VIDEO_ENCODER(X264, x264);
 
     // audio
-    REGISTER_AUDIO_ENCODER(FAAC, faac);
+    REGISTER_AUDIO_ENCODER(FDKAAC, fdkaac);
     return;
 }
 

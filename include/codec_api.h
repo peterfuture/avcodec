@@ -59,6 +59,9 @@ struct codec_frame
     int64_t pts;
     int key;
     uint8_t *data;
+
+    // number of audio samples (per channel) described by this frame
+    int nb_samples;
 };
 
 
