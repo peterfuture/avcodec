@@ -9,7 +9,8 @@ struct video_encoder {
     struct codec_para para;
 
     int (*open)(struct video_encoder *encoder);
-    int (*encode)(struct video_encoder *encoder, struct codec_packet * pkt, struct codec_frame *frame);
+    int (*encode)(struct video_encoder *encoder, struct codec_packet * pkt,
+                  struct codec_frame *frame);
     int (*get_info)(struct video_encoder *encoder);
     int (*set_info)(struct video_encoder *encoder);
     int (*close)(struct video_encoder *encoder);
@@ -24,7 +25,8 @@ struct audio_encoder {
     struct codec_para para;
 
     int (*open)(struct audio_encoder *encoder);
-    int (*encode)(struct audio_encoder *encoder, struct codec_packet * pkt, struct codec_frame *frame);
+    int (*encode)(struct audio_encoder *encoder, struct codec_packet * pkt,
+                  struct codec_frame *frame);
     int (*get_info)(struct audio_encoder *encoder);
     int (*set_info)(struct audio_encoder *encoder);
     int (*close)(struct audio_encoder *encoder);
@@ -43,7 +45,8 @@ struct encoder_context {
 void encoder_register_all();
 
 struct encoder_context *encoder_create(struct codec_para *para);
-int encoder_encode(struct encoder_context *handle, struct codec_packet *pkt, struct codec_frame *frame);
+int encoder_encode(struct encoder_context *handle, struct codec_packet *pkt,
+                   struct codec_frame *frame);
 void encoder_destroy(struct encoder_context *handle);
 
 #endif

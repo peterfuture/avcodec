@@ -15,9 +15,10 @@ void codec_register_all()
     encoder_register_all();
 }
 
-struct codec_context *codec_create_codec(struct codec_para *para)
+struct codec_context *codec_create(struct codec_para *para)
 {
-    struct codec_context *handle = (struct codec_context *)malloc(sizeof(struct codec_context));
+    struct codec_context *handle = (struct codec_context *)malloc(sizeof(
+                                       struct codec_context));
     if (!handle) {
         return NULL;
     }
@@ -41,12 +42,15 @@ struct codec_context *codec_create_codec(struct codec_para *para)
     return handle;
 }
 
-int codec_decode_frame()
+int codec_decode_frame(struct codec_context *handle, codec_frame *frame,
+                       int *got_frame, struct codec_packet *pkt)
 {
-    return 0;
+    struct decoder_context *codec = (struct decoder_context *)handle->codec;
+    return decoder_decode(codec, frame, got_frame, pkt);
 }
 
-int codec_encode_frame(struct codec_context *handle, struct codec_packet *pkt, struct codec_frame *frame)
+int codec_encode_frame(struct codec_context *handle, struct codec_packet *pkt,
+                       struct codec_frame *frame)
 {
     struct encoder_context *codec = (struct encoder_context *)handle->codec;
     return encoder_encode(codec, pkt, frame);
@@ -62,7 +66,7 @@ int codec_set_parameter()
     return 0;
 }
 
-int codec_destroy_codec(struct codec_context *handle)
+int codec_destroy(struct codec_context *handle)
 {
     if (!handle) {
         return 0;

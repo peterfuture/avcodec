@@ -27,7 +27,8 @@ static void register_venc(struct video_encoder * venc)
         p = &(*p)->next;
     }
     *p = venc;
-    log_print(TAG, "[%s:%d] register venc, name:%s fmt:%d \n", __FUNCTION__, __LINE__, (*p)->name, (*p)->media_format);
+    log_print(TAG, "[%s:%d] register venc, name:%s fmt:%d \n", __FUNCTION__,
+              __LINE__, (*p)->name, (*p)->media_format);
     venc->next = NULL;
 }
 
@@ -68,7 +69,8 @@ static void register_aenc(struct audio_encoder * aenc)
         p = &(*p)->next;
     }
     *p = aenc;
-    log_print(TAG, "[%s:%d] register aenc, name:%s fmt:%d \n", __FUNCTION__, __LINE__, (*p)->name, (*p)->media_format);
+    log_print(TAG, "[%s:%d] register aenc, name:%s fmt:%d \n", __FUNCTION__,
+              __LINE__, (*p)->name, (*p)->media_format);
     aenc->next = NULL;
 }
 
@@ -102,7 +104,8 @@ void encoder_register_all()
 
 struct encoder_context *encoder_create(struct codec_para *para)
 {
-    struct encoder_context *handle = (struct encoder_context *)malloc(sizeof(struct encoder_context));
+    struct encoder_context *handle = (struct encoder_context *)malloc(sizeof(
+                                         struct encoder_context));
     if (!handle) {
         return NULL;
     }
@@ -124,7 +127,10 @@ struct encoder_context *encoder_create(struct codec_para *para)
         }
         handle->encoder = (void *)ve;
 
-    } else if (para->media_type == CODEC_MEDIA_TYPE_AUDIO) {
+        return handle;
+    }
+
+    if (para->media_type == CODEC_MEDIA_TYPE_AUDIO) {
         struct audio_encoder *ae = NULL;
         ae = audio_encoder_select(para->media_format);
         if (!ae) {
@@ -137,18 +143,20 @@ struct encoder_context *encoder_create(struct codec_para *para)
             return NULL;
         }
         handle->encoder = (void *)ae;
+        return handle;
     }
 
-    return handle;
+    return NULL;
 }
 
-int encoder_encode(struct encoder_context *handle, struct codec_packet *pkt, struct codec_frame *frame)
+int encoder_encode(struct encoder_context *handle, struct codec_packet *pkt,
+                   struct codec_frame *frame)
 {
-    if(handle->para.media_type == CODEC_MEDIA_TYPE_VIDEO) {
+    if (handle->para.media_type == CODEC_MEDIA_TYPE_VIDEO) {
         struct video_encoder *encoder = (struct video_encoder *)handle->encoder;
         return encoder->encode(encoder, pkt, frame);
     }
-    if(handle->para.media_type == CODEC_MEDIA_TYPE_AUDIO) {
+    if (handle->para.media_type == CODEC_MEDIA_TYPE_AUDIO) {
         struct audio_encoder *encoder = (struct audio_encoder *)handle->encoder;
         return encoder->encode(encoder, pkt, frame);
     }
@@ -158,14 +166,14 @@ int encoder_encode(struct encoder_context *handle, struct codec_packet *pkt, str
 
 void encoder_destroy(struct encoder_context *handle)
 {
-    if(handle->para.media_type == CODEC_MEDIA_TYPE_VIDEO) {
+    if (handle->para.media_type == CODEC_MEDIA_TYPE_VIDEO) {
         struct video_encoder *encoder = (struct video_encoder *)handle->encoder;
         encoder->close(encoder);
     }
-    if(handle->para.media_type == CODEC_MEDIA_TYPE_AUDIO) {
+    if (handle->para.media_type == CODEC_MEDIA_TYPE_AUDIO) {
         struct audio_encoder *encoder = (struct audio_encoder *)handle->encoder;
         encoder->close(encoder);
-    
+
     }
     free(handle);
     return;

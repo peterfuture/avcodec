@@ -14,8 +14,8 @@ int main(int argc, char **argv)
     para.media_type = CODEC_MEDIA_TYPE_VIDEO;
     para.width = 1280;
     para.height = 720;
-    struct codec_context *codec = codec_create_codec(&para);
-    codec_destroy_codec(codec);
+    struct codec_context *codec = codec_create(&para);
+    codec_destroy(codec);
 
     // video encoder test
     memset(&para, 0, sizeof(struct codec_para));
@@ -24,13 +24,13 @@ int main(int argc, char **argv)
     para.media_type = CODEC_MEDIA_TYPE_VIDEO;
     para.width = 1280;
     para.height = 720;
-    codec = codec_create_codec(&para);
+    codec = codec_create(&para);
     pkt.data = (uint8_t *)malloc(1280 * 720 * 4);
     frame.key = 1;
     frame.data = (uint8_t *)malloc(1280 * 720 * 4);
     memset(frame.data, 256, 1000);
     codec_encode_frame(codec, &pkt, &frame);
-    codec_destroy_codec(codec);
+    codec_destroy(codec);
     free(pkt.data);
     free(frame.data);
 
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     para.media_type = CODEC_MEDIA_TYPE_AUDIO;
     para.samplerate = 44100;
     para.channels = 2;
-    codec = codec_create_codec(&para);
+    codec = codec_create(&para);
     pkt.data = (uint8_t *)malloc(1280 * 720 * 4);
     pkt.size = 1280 * 720 * 4;
     frame.key = 1;
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
     frame.size = 44100*2;
     frame.nb_samples = 44100;
     codec_encode_frame(codec, &pkt, &frame);
-    codec_destroy_codec(codec);
+    codec_destroy(codec);
     free(pkt.data);
     free(frame.data);
 

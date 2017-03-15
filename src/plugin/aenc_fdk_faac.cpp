@@ -32,18 +32,20 @@ struct fdkaac_context {
 
 static int fdkaac_audio_encoder_open(struct audio_encoder *encoder)
 {
-    struct fdkaac_context *context = (struct fdkaac_context *)malloc(sizeof(struct fdkaac_context));
-    if(!context)
+    struct fdkaac_context *context = (struct fdkaac_context *)malloc(sizeof(
+                                         struct fdkaac_context));
+    if (!context) {
         return -1;
+    }
     memset(context, 0, sizeof(struct fdkaac_context));
     struct codec_para *para = &encoder->para;
     context->encModules = 0x01;
-    context->maxChannel = 2; 
+    context->maxChannel = 2;
 
     AACENC_ERROR ErrorStatus = aacEncOpen(&context->phAacEncoder, 0, 0);
-    if(ErrorStatus != AACENC_OK) {
+    if (ErrorStatus != AACENC_OK) {
         free(context);
-        log_print(TAG, "FAAC Encoder Fail, ret:%d.\n", ErrorStatus );
+        log_print(TAG, "FAAC Encoder Fail, ret:%d.\n", ErrorStatus);
         return -1;
     }
     aacEncoder_SetParam(context->phAacEncoder, AACENC_SAMPLERATE, para->samplerate);
@@ -52,15 +54,17 @@ static int fdkaac_audio_encoder_open(struct audio_encoder *encoder)
     AACENC_InfoStruct encInfo;
     ErrorStatus = aacEncInfo(context->phAacEncoder, &encInfo);
     encoder->priv = (void *)context;
-    log_print(TAG, "FAAC Encoder Open. maxout:%d input channel:%d framesize:%d\n", (int)encInfo.maxOutBufBytes, (int)encInfo.inputChannels, encInfo.frameLength);
+    log_print(TAG, "FAAC Encoder Open. maxout:%d input channel:%d framesize:%d\n",
+              (int)encInfo.maxOutBufBytes, (int)encInfo.inputChannels, encInfo.frameLength);
     return 0;
 }
 
-static int fdkaac_audio_encoder_encode(struct audio_encoder *encoder, struct codec_packet *pkt, struct codec_frame *frame)
+static int fdkaac_audio_encoder_encode(struct audio_encoder *encoder,
+                                       struct codec_packet *pkt, struct codec_frame *frame)
 {
     struct fdkaac_context *context = (struct fdkaac_context *)encoder->priv;
     struct codec_para *para = &encoder->para;
-    
+
     AACENC_BufDesc in_buf   = { 0 }, out_buf = { 0 };
     AACENC_InArgs  in_args  = { 0 };
     AACENC_OutArgs out_args = { 0 };
@@ -71,8 +75,10 @@ static int fdkaac_audio_encoder_encode(struct audio_encoder *encoder, struct cod
     void *in_ptr, *out_ptr;
     int ret;
     AACENC_ERROR err;
- 
-    log_print(TAG, "1-FAAC Encoder One Frame. In:%d Out:%d channels:%d samples:%d\n", frame->size, pkt->size, para->channels, frame->nb_samples);
+
+    log_print(TAG,
+              "1-FAAC Encoder One Frame. In:%d Out:%d channels:%d samples:%d\n", frame->size,
+              pkt->size, para->channels, frame->nb_samples);
     in_ptr                   = (void *)frame->data;
     in_buffer_size           = 2 * para->channels * frame->nb_samples;
     in_buffer_element_size   = 2;
@@ -96,8 +102,9 @@ static int fdkaac_audio_encoder_encode(struct audio_encoder *encoder, struct cod
     if ((err = aacEncEncode(context->phAacEncoder, &in_buf, &out_buf, &in_args,
                             &out_args)) != AACENC_OK) {
         log_print(TAG, "FAAC Encoder One Frame Fail. error:%d\n", err);
-        if (!frame && err == AACENC_ENCODE_EOF)
+        if (!frame && err == AACENC_ENCODE_EOF) {
             return 0;
+        }
         return -1;
     }
 
@@ -105,8 +112,9 @@ static int fdkaac_audio_encoder_encode(struct audio_encoder *encoder, struct cod
         log_print(TAG, "FAAC Encoder One Frame. No pcm out\n");
         return 0;
     }
-    pkt->size = out_args.numOutBytes; 
-    log_print(TAG, "FAAC Encoder One Frame. In:%d Out:%d\n", frame->size, pkt->size);
+    pkt->size = out_args.numOutBytes;
+    log_print(TAG, "FAAC Encoder One Frame. In:%d Out:%d\n", frame->size,
+              pkt->size);
     return out_args.numOutBytes;
 }
 

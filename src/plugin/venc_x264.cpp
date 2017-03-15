@@ -18,7 +18,8 @@ struct x264_context {
 
 static int x264_video_encoder_open(struct video_encoder *encoder)
 {
-    struct x264_context *x264 = (struct x264_context *)malloc(sizeof(struct x264_context));
+    struct x264_context *x264 = (struct x264_context *)malloc(sizeof(
+                                    struct x264_context));
     x264_param_t *x264_para = &x264->para;
     struct codec_para *codec_para = &encoder->para;
 
@@ -39,8 +40,10 @@ static int x264_video_encoder_open(struct video_encoder *encoder)
     x264_param_apply_profile(x264_para, "baseline");
 
     // 1. Prepare the output buffer and target file
-    x264_picture_alloc(&x264->in,  X264_CSP_NV12, x264_para->i_width, x264_para->i_height);
-    x264_picture_alloc(&x264->out, X264_CSP_NV12, x264_para->i_width, x264_para->i_height);
+    x264_picture_alloc(&x264->in,  X264_CSP_NV12, x264_para->i_width,
+                       x264_para->i_height);
+    x264_picture_alloc(&x264->out, X264_CSP_NV12, x264_para->i_width,
+                       x264_para->i_height);
 
     // 2. Building the encoder handler
     x264->handle = x264_encoder_open(x264_para);
@@ -51,14 +54,16 @@ static int x264_video_encoder_open(struct video_encoder *encoder)
     return 0;
 }
 
-static int x264_video_encoder_encode(struct video_encoder *encoder, struct codec_packet *pkt, struct codec_frame *frame)
+static int x264_video_encoder_encode(struct video_encoder *encoder,
+                                     struct codec_packet *pkt, struct codec_frame *frame)
 {
     struct x264_context *x264 = (struct x264_context *)encoder->priv;
     x264_param_t *x264_para = &x264->para;
     int width = x264_para->i_width;
     int height = x264_para->i_height;
     memcpy(x264->in.img.plane[0], frame->data, width * height);
-    memcpy(x264->in.img.plane[1], frame->data + width * height - 1, width * height / 2);
+    memcpy(x264->in.img.plane[1], frame->data + width * height - 1,
+           width * height / 2);
 
     if (frame->key == 1) {
         x264->in.i_type = X264_TYPE_IDR;
@@ -68,7 +73,8 @@ static int x264_video_encoder_encode(struct video_encoder *encoder, struct codec
 
     int nals;
     x264_nal_t *nal_pointer;
-    int ret = x264_encoder_encode(x264->handle, &nal_pointer, &nals, &x264->in, &x264->out);
+    int ret = x264_encoder_encode(x264->handle, &nal_pointer, &nals, &x264->in,
+                                  &x264->out);
     if (ret <= 0) {
         return ret;
     }
