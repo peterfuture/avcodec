@@ -10,7 +10,7 @@ Video Encoder
 
 ## Build
 
-git clone https://github.com/peterfuture/dtcodec<br>
+https://github.com/void-retire/avcodec
 git submodule update --init
 
 ###Linux
