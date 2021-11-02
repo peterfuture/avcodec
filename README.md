@@ -32,9 +32,6 @@ git submodule update --init
 * cmake -DCMAKE_TOOLCHAIN_FILE=../android_toolchain.cmake ..
 * make -j8
 
-## Author
-
-peter_future@outlook.com
 
 # Licence
 
